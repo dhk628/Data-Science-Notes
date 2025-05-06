@@ -1,0 +1,54 @@
+\usepackage{amsmath,amsfonts,mathtools,amssymb,amsthm,array}
+\usepackage{enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz,tikz-cd}
+\usepackage{yfonts,mathrsfs}
+% \usepackage[colorlinks=false,hidelinks]{hyperref}
+\numberwithin{equation}{section}
+
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\inv}{^{-1}}
+
+\DeclareMathOperator{\real}{Re}
+\DeclareMathOperator{\imag}{Im}
+\DeclareMathOperator{\cis}{cis}
+
+\newcommand{\GL}{\mathrm{GL}}
+\newcommand{\SL}{\mathsf{SL}}
+\newcommand{\SO}{\mathsf{SO}}
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\newcommand{\brak}[1]{\left[#1\right]}
+
+% maps %
+\newcommand{\inj}{\xhookrightarrow{}}
+\newcommand{\surj}{\twoheadrightarrow}
+\newcommand{\bij}{\xrightarrow{\sim}}
+\newcommand{\longto}{\longrightarrow}
+\newcommand{\id}{\mathrm{id}}
+
+\DeclareMathOperator{\End}{End}
+\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\coker}{coker}
+\DeclareMathOperator{\rank}{rank}
+
+% abs and norm %
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}
+\makeatletter
+\let\oldabs\abs
+\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+\let\oldnorm\norm
+\def\norm{\@ifstar{\oldnorm}{\oldnorm*}}
+\makeatother
+
+% fields %
+\newcommand{\fieldk}{\mathsf{k}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\A}{\mathbb{A}}

@@ -1,9 +1,6 @@
 img/
 .vscode/
 bib/
-sty/
-tex/
-*.tex
 *.aux
 *.bbl
 *.blg

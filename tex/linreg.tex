@@ -1,0 +1,57 @@
+\documentclass[../ds]{subfiles}
+\begin{document}
+\chapter{Linear Regression}
+\begin{itemize}
+\item
+Observations \[y_i = \beta_0 + \beta_1x_{i1} + \cdots + \beta_px_{ip} + \epsilon_i = {x_i}\cdot{\beta} + \epsilon_i,\]
+i.e., $y = X\beta + \epsilon.$
+
+\item 
+Loss function \[ L(\beta) = \mse(\beta) = \frac{1}{n} \norm{y - X\beta}^2. \]
+
+\item
+Want $\hat{\beta}$ that minimizes $L(\beta):$
+	\begin{itemize}
+	\item Find $\hat{\beta}$ such that \[\frac{\partial L}{\partial \beta} = 0.\]
+	\item Project $y$ onto $\Col(X).$
+	\end{itemize}
+Get $\hat{\beta} = (X^TX)^{-1}X^Ty.$ For simple linear regression, i.e.\ $y = \beta_0 + \beta_1 x + \epsilon,$ we get
+\begin{gather*}
+\hat{\beta}_0 = \overline{y} - \hat{\beta}_1\overline{x},\\
+\hat{\beta}_1 = \frac{\cov(x,y)}{\Var(x)} = \frac{\sum (x_i - \overline{x})(y_i - \overline{y})}{\sum (x_i - \overline{x})^2}.
+\end{gather*}
+
+\item
+Residual is $\hat{\epsilon} = y - X\hat{\beta}.$ The residual/explained/total sum of squares is:
+	\begin{itemize}
+	\item 
+	$\text{RSS} = \norm{\hat{e}}^2,$ i.e., variation in the error between the observed data and modeled values.
+	\item 
+	$\text{ESS} = \sum(\hat{y}_i - \overline{y}_i),$ i.e., how much variation there is in the modeled values.
+	\item 
+	$\text{TSS} = \sum(y_i - \overline{y}),$ i.e., how much variation there is in the observed data.
+	\item In linear regression, $\text{TSS} = \text{RSS} + \text{ESS}.$
+	\end{itemize}
+
+\item 
+Coefficient of determination is \[ R^2 = 1 - \frac{\text{RSS}}{\text{TSS}}. \] Note that the baseline model always predicts $\overline{y},$ so $R^2 = 0.$ Furthermore, adding features weakly decreases RSS, hence weakly increases $R^2.$ Instead, we could use adjusted $R^2:$
+\[ \overline{R}^2 = 1 - \frac{\text{RSS}/\text{df}_\text{res}}{\text{TSS}/\text{df}_\text{tot}}, \] where $\text{df}$ is degrees of freedom, so $\text{df}_\text{res} = n - p - 1$ and $\text{df}_\text{tot} = n - 1.$
+
+\item 
+Assumptions:
+	\begin{itemize}
+	\item \textbf{Weak exogeneity}: Predictor variables $x$ can be treated as fixed values, and not random variables, i.e., $x$ is error-free, i.e., $E(x\epsilon) = 0.$ So no confounding variables.
+	
+	\item \textbf{Linearity}: Mean of $y$ is linear combination of parameters and $x.$
+	
+	\item \textbf{Independence}: Observations are independent of each other.
+		
+	\item \textbf{Homoscedasticity}: Constant variance of $\epsilon.$
+	
+	\item \textbf{Normality:} $\epsilon$ follow a normal distribution.
+	
+	\item \textbf{No multicollinearity}: The independent variables are not highly correlated with each other.
+	\end{itemize}
+
+\end{itemize}
+\end{document}

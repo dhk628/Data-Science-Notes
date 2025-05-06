@@ -1,0 +1,206 @@
+\documentclass[../ds]{subfiles}
+\begin{document}
+\chapter{Statistics}
+\section{Basics}
+\begin{itemize}
+	\item $\E(X) = \int xf(x)$ and $\Var(X) = \E((X-\mu)^2).$
+	\item Sample mean: $\overline{X} = \frac{1}{n}\sum X_i.$
+	\item Sample variance: $S^2 = \frac{1}{n-1}\sum (X_i - \overline{X})^2.$
+	\item Likelihood: Let $X_i$ have joint pdf $f(\mathbf{x};\theta).$ Given observed values $x_i$ of $X_i,$ the \textit{likelihood} of $\theta$ is $L(\theta) = f(\mathbf{x};\theta).$ The \textit{maximum likelihood estimate} $\hat{\theta}(\mathbf{x})$ is the value of $\theta$ that maximizes $L(\theta).$
+\end{itemize}
+
+\section{Convergence of Random Variables}
+RVs $X_n$ with cdf $F_n.$
+\begin{itemize}
+	\item $X_n$ \textit{converges in distribution} to $X$ (weakly) if \[\lim F_n(x) = F(x)\] for all $x$ at which $F$ is continuous.
+	\item $X_n$ \textit{converges in probability} to $X$ if for all $\epsilon > 0,$
+	\[ \lim P(|X_n - X| > \epsilon) = 0. \]
+	\item $X_n$ \textit{converges almost surely} to $X$ (strongly) if 
+	\[ P\left(\lim X_n = X\right) = 1, \]
+	i.e.,\ events for which $X_n$ does not converge to $X$ have probability $0.$
+\end{itemize}
+
+\section{Parameter Estimation}
+An \textit{estimator} is any statistic $\hat{\theta} = \hat{\theta}(X)$ used to estimate $\theta.$
+
+\subsection{Properties of estimators}
+\subsubsection{Mean squared error}
+\begin{itemize}
+	\item $\mse(\hat{\theta}) = \E\left[(\hat{\theta}-\theta)^2\right].$
+\end{itemize}
+
+\subsubsection{Variance}
+\begin{itemize}
+	\item $\Var(\hat{\theta}) = \E\left[(\hat{\theta} - \E(\hat{\theta}))^2\right].$
+\end{itemize}
+
+\subsubsection{Bias}
+\begin{itemize}
+	\item $\Bias(\hat{\theta}) = \E(\hat{\theta}) - \theta.$
+	\item Note that $\mse(\hat{\theta}) = \Var(\hat{\theta}) + \Bias(\hat{\theta})^2.$
+	\item The unbiased estimator with the smallest variance is known as the \textit{minimum-variance unbiased estimator} (MVUE).
+\end{itemize}
+
+\subsubsection{Consistency}
+\begin{itemize}
+	\item An estimator $T_n$ of $\theta$ is \textit{weakly consistent} if $T_n$ converges in probability to $\theta.$
+	\item $T_n$ is \textit{strongly consistent} if $T_n$ converges almost surely to $\theta.$
+\end{itemize}
+
+\subsubsection{Asymptotic normality}
+\begin{itemize}
+	\item $T_n$ is \textit{asymptotically normal} if \[ \sqrt{n}(T_n - \theta) \xrightarrow{D} N(0,V). \]
+	\item Recall: CLT says that sample mean $\overline{X}$ is asymptotically normal.
+\end{itemize}
+
+\subsubsection{Efficiency}
+\begin{itemize}
+	\item The \textit{observed information} is \[ J(\theta) = -\frac{d^2l}{d \theta^2} \] for scalar parameter $\theta$ or 
+	\[ J(\theta)_{ij} = -\frac{\partial^2l}{\partial \theta_i \partial \theta_j} \] for $\theta = (\theta_1, \ldots, \theta_p).$
+	\item The larger $J(\hat{\theta})$ is, the more concentrated $l(\theta)$ is about $\hat{\theta}.$
+	\item The \textit{expected} or \textit{Fisher information} is \[ I(\theta) = \E\left(-\frac{d^2l}{d \theta^2}\right) \] or
+	\[ I(\theta)_{ij} = \E\left(-\frac{\partial^2l}{\partial \theta_i \partial \theta_j}\right). \]
+	\item Equivalently, define \textit{score} to be gradient of $l(\theta),$ i.e., \[ s(\theta) = \frac{\partial l}{\partial \theta}. \]
+	Then expected value of score at $\theta$ is $0,$ i.e., $\E(s \mid \theta) = 0.$ The Fisher information is defined to be the variance of the score $\Var(s(\theta)) = \E(s(\theta)s(\theta)^T).$
+	\item The \textit{Cramer-Rao bound} says that for an unbiased estimator, \[ \Var(\hat{\theta}) \geq \frac{1}{I(\theta)}. \]
+	Generally, if $\E(\hat{\theta}) = \psi(\theta),$ then 
+	\[ \Var(\hat{\theta}) \geq \frac{(\psi'(\theta))^2}{I(\theta)} = \frac{(1+b'(\theta))^2}{I(\theta)}, \] where $b$ is the bias. In the unbiased multivariate case, the Cramer-Rao bound states that 
+	\[ \cov(T(X)) \geq I(\theta)^{-1}, \]
+	where $M \geq 0$ means that $M$ is positive semidefinite, i.e., $\mathbf{x}^TM\mathbf{x} \geq 0$ for all $\mathbf{x}.$
+
+	\item The \textit{efficiency} of an unbiased estimator is 
+	\[ e(T) = \frac{1/I(\theta)}{\Var(T)}. \] By the Cramer-Rao bound, we know $e(T) \leq 1.$
+	An estimator is \textit{efficient} if $e(T) = 1$ for all $\theta,$ i.e., achieves Cramer-Rao bound for all $\theta.$ Thus, an efficient estimator is the MVUE (but not necessarily conversely).
+\end{itemize}
+
+\subsubsection{Properties of MLEs}
+Let $\hat{\theta}$ be the MLE of $\theta.$ Then
+\begin{itemize}
+	\item $\sqrt{n}(\hat\theta - \theta) \xrightarrow{D} N(0, I(\theta)^{-1}),$ so $\hat\theta$ is asymptotically unbiased and asymptotically efficient.
+	\item $\hat\theta \xrightarrow(P) \theta,$ i.e., $\hat\theta$ is consistent.
+	\item Invariance property: the MLE of $g(\theta)$ is $g(\hat\theta).$
+\end{itemize}
+
+\section{Hypothesis Testing}
+$X_i$ random sample from $f(x; \theta).$
+\begin{itemize}
+	\item Setup:
+		\begin{itemize}
+			\item Null hypothesis $H_0\colon \theta \in \Theta_0$
+			\item Alternative hypothesis $H_1\colon \theta \in \Theta_1$
+		\end{itemize}
+	\item Construct test statistic $t(\mathbf{X})$ such that large values of $t(\mathbf{X})$ cast doubt on $H_0.$
+	\item Let $\tobs = t(\mathbf{x}).$
+	\item The \textit{$p$-value} or \textit{significance level} is 
+	\[ p = P(t(\mathbf{X}) \geq \tobs \mid H_0). \]
+	\item Small $p$-value = observed values unlikely under $H_0.$
+	\item Can define \textit{critical region} to be $C$ such that we reject $H_0$ if and only if $\mathbf{x} \in C.$
+\end{itemize}
+
+\subsection{Errors in hypothesis testing}
+Two types of error:
+\begin{itemize}
+	\item Type I error: rejecting $H_0$ when $H_0$ is true
+	\item Type II error: not rejecting $H_0$ when $H_0$ is false.
+\end{itemize}
+The \textit{size} of a test is defined by
+\begin{align*}
+	\alpha
+	   &= P(\text{type I error}) \\
+	   &= P(\text{reject } H_0 \mid H_0 \text{ true}).
+\end{align*}
+The \textit{power} of a test is $1-\beta,$ where
+\begin{align*}
+	\beta
+	   &= P(\text{type II error}) \\
+	   &= P(\text{don't reject } H_0 \mid H_1 \text{ true}).
+\end{align*}
+We want \textbf{small size} and \textbf{high power}.
+
+For composite $H_i,$ define the size
+\[ \alpha =  \sup{\theta \in \Theta_0}P(\text{reject } H_0 \mid \theta) \]
+and the power function
+\begin{align*}
+	w(\theta)
+	   &= P(\text{reject } H_0 \mid \theta).
+\end{align*}
+We want $w \approx 0$ for $\theta \in \Theta_0$ and $w \approx 1$ for $\theta \in \Theta_1.$
+
+\subsubsection{Student's $t$-test}
+Consider statistic
+\[ t = \frac{\overline{x} - \mu_0}{s/\sqrt{n}}, \]
+which has $t$-distribution with $n-1$ degrees of freedom. Recall that a $t$-distribution is given by \[ T = \frac{Z}{\sqrt{V/\nu}}, \]
+where $Z$ is standard normal and $V$ is $\chi^2$ with $\nu$ degrees of freedom.
+
+\subsubsection{Noncentral $t$-distribution}
+\begin{itemize}
+	\item Noncentral distributions describe how a test statistic is distributed when the null hypothesis is false.
+	\item Noncentral $t$-distribution is given by
+	\[ T = \frac{Z+\mu}{\sqrt{V/\nu}}, \]
+	where $\mu$ is the noncentrality parameter.
+	\item Under the alternative hypothesis, we get noncentral $t$-distribution with $n-1$ degrees of freedom and noncentrality parameter
+	\[ \delta = \frac{\mu - \mu_0}{\sigma/\sqrt{n}}. \]
+	This allows us to set the power as
+	\[ \text{Power} = P(\text{reject }H_0 \mid H_1). \]
+	Note that as $n$ increases, power increases.
+\end{itemize}
+
+\section{Bayesian Inference}
+\begin{itemize}
+	\item Unknown parameters are \textit{random variables}.
+	\item Probability model $f(\mathbf{x} \mid \theta)$ that is \textit{conditional on} the value of $\theta.$
+	\item Prior density $\pi(\theta).$
+	\item After using observed data $\mathbf{x},$ get posterior density $\pi(\theta \mid \mathbf{x}).$
+	\item We have
+	\begin{align*}
+		\pi(\theta \mid \mathbf{x}) &\propto f(\mathbf{x} \mid \theta) \times \pi(\theta) \\
+		\text{posterior} &\propto \text{likelihood} \times \text{prior}
+	\end{align*}
+\end{itemize}
+
+\subsection{Prediction}
+\begin{itemize}
+	\item $X_{n+1}$ future observation and $\mathbf{x} = (x_1, \ldots, x_n)$ observed data.
+	\item Assume, conditional on $\theta,$ that $X_{n+1}$ has density $f(x_{n+1} \mid \theta)$ independent of $X_i,\ldots,X_n.$
+	\item The density of $X_{n+1}$ given $\mathbf{x}$, called the \textit{posterior predictive density}, is a conditional density denoted $f(x_{n+1} \mid \mathbf{x}).$
+	\item Then
+	\begin{align*}
+		f(x_{n+1} \mid \mathbf{x})
+		   &= \int f(x_{n+1},\theta \mid \mathbf{x})\,d\theta\\
+		   &= \int f(x_{n+1} \mid \theta, \mathbf{x})\pi(\theta \mid \mathbf{x})\,d\theta\\
+		   &= \int f(x_{n+1} \mid \theta)\pi(\theta \mid \mathbf{x})\,d\theta\\
+	\end{align*}
+\end{itemize}
+
+\subsection{Credible interval}
+\begin{itemize}
+	\item Bayesian alternative to confidence interval.
+	\item A $100(1- \alpha)\%$ credible set for $\theta$ is $jc \subset \Theta$ such that
+	\[ P(\theta \in C \mid \mathbf{x}) = \int_C \pi (\theta \mid \mathbf{x})\,d\theta = 1-\alpha.\]
+\end{itemize}
+
+\subsection{Hypothesis testing and Bayes factors}
+
+\subsubsection{Setup}
+\begin{itemize}
+	\item Prior probabilities $P(H_i)$ such that $P(H_0) + P(H_1) = 1.$
+	\item A prior for $\theta_i$ under $H_i,$ denoted $\pi(\theta_i \mid H_i).$
+	\item A model for data $\mathbf{x}$ under $H_i,$ denoted $f(\mathbf{x} \mid \theta_i,H_i).$
+\end{itemize}
+
+\subsubsection{Bayes factor}
+\begin{itemize}
+	\item Prior odds of $H_0$ relative to $H_1$ is \[ \frac{P(H_0)}{P(H_1)}. \]
+	\item Posterior odds of $H_0$ relative to $H_1$ is \[ \frac{P(H_0 \mid \mathbf{x})}{P(H_1 \mid \mathbf{x})}. \]
+	\item Using Bayes' Theorem, get 
+	\begin{align*}
+		\frac{P(H_0 \mid \mathbf{x})}{P(H_1 \mid \mathbf{x})} &= \frac{P(\mathbf{x} \mid H_0)}{P(\mathbf{x} \mid H_1)} \times \frac{P(H_0)}{P(H_1)} \\
+		\text{posterior odds} &= \text{Bayes factor} \times \text{prior odds}
+	\end{align*}
+	where the Bayes factor of $H_0$ relative to $H_1$ is
+	\[ B_{01} = \frac{P(\mathbf{x} \mid H_0)}{P(\mathbf{x} \mid H_1)}.\]
+	\item The quantity
+	\[ P(\mathbf{x} \mid H_i) = \int_{\Theta_i} f(\mathbf{x} \mid \theta_i,H_i) \pi(\theta_i \mid H_i)\,d\theta \]
+	is called the \textit{marginal likelihood} for $H_i.$
+\end{itemize}
+\end{document}
