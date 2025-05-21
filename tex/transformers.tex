@@ -1,0 +1,162 @@
+\chapter{Transformers}
+
+\begin{itemize}
+\item 
+Encoding component is a stack (six in original paper) of encoders with same structure but different weights. Decoding component is a stack of decoders of the same number.
+
+\item 
+Encoders: Self-Attention \textrightarrow{} FNN
+	\begin{itemize}
+	\item 
+	First encoder receives embedding of words.
+	
+	\item 
+	Other encoders receive output of encoder directly below.
+	\end{itemize}
+
+\item 
+Decoders: Self-Attention \textrightarrow{} Encoder-Decoder Attention \textrightarrow{} FNN
+\end{itemize}
+
+\section{Ingredients}
+\subsection{Self-attention}
+Process:
+\begin{enumerate}
+\item Create three vectors from each of the encoder’s input vectors: Query, Key, and Value vectors.
+
+\item Note: in original paper, input vectors are in $\R^{512},$ and QKV vectors are in $\R^{64}.$
+
+\item Self-attention score between $i$-th and $j$-th word is $q_i \cdot k_j$ for all $j.$
+
+\item Divide scores by square root of dimension (8; this gives more stable gradients) and softmax.
+
+\item Multiply each value vector $v_j$ by softmax scores.
+
+\item Sum up the weighted value vectors. This is output of self-attention layer for $i$-th word.
+\end{enumerate}
+In matrix form, suppose our input is $X \in \R^{n \times d},$ where $n$ is the sequence length and $d$ is the embedding dimension. (So rows of $X$ are the inputs.) The QKV matrices are given by $W_Q, W_K, W_V \in \R^{d \times d_k}.$ Then the QKV vectors
+\begin{align*}
+    Q &= XW_Q \\
+    K &= XW_K \\
+    V &= XW_V
+\end{align*}
+are in $R^{n \times d_k}$
+For each attention head, we have
+\[ \att(Q,K,V) = \softmax\left(\frac{QK^T}{\sqrt{d_k}}\right) \times V \in \R^{n \times d_k}, \]
+i.e., aggregate values weighted by attention.
+
+\subsection{Multi-headed attention}
+Do $h$ parallel attention heads, with different weight matrices for each head.
+\[ \operatorname{MultiHead}(Q, K, V) = \operatorname{Concat}(\head_1, \ldots, \head_h) \times W_O, \]
+where
+\[ \head_i = \att(Q_i, K_i, V_i) \]
+is output of each attention head and $W_O \in \R^{hd_k \times d}.$ Note that $\operatorname{MultiHead}(Q, K, V) \in \R^{n \times d}.$ 
+
+\subsection{Positional encoding}
+Transformers are permutation-invariant, so we add positional encoding to input embeddings.
+
+\subsection{FNN}
+Output of attention fed into FNN:
+\[ \operatorname{FNN}(x) = \operatorname{ReLU}(xW_1 + b_1)W_2 + b_2. \]
+
+\subsection{Residual connections \& layer normalization}
+Each sub-layer (attention or feedforward) is followed by
+\[ \layernorm(x + \operatorname{Sublayer}(x)). \]
+Given $x \in \R^d,$ the layer norm is 
+\[ \layernorm(x) = \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}} \cdot \gamma + \beta, \]
+where
+\begin{gather*}
+    \mu = \frac{\sum x_i}{d} \text{ (mean over features)}\\
+    \sigma^2 = \frac{\sum(x_i - \mu)^2}{d} \text{ (variance over features)}\\
+    \gamma,\beta \text{: learned scaling and shifting parameters}\\
+    \epsilon \text{: small constant to prevent division by zero}.
+\end{gather*}
+
+\section{Original Architecture}
+Encoder Layer:
+\begin{itemize}
+    \item Input Embedding + Positional Encoding
+    \item Multi-Head Self-Attention \textrightarrow{} Residual + Layer Norm
+    \item Feed-Forward Network \textrightarrow{} Residual + Layer Norm
+\end{itemize}
+Decoder Layer:
+\begin{itemize}
+\item Masked Multi-Head Self-Attention (prevent peeking at future tokens)
+\item Multi-Head Encoder-Decoder Attention \textrightarrow{} Residual + Layer Norm
+\item Feed-Forward Network \textrightarrow{} Residual + Layer Norm
+\end{itemize}
+
+\section{Modern Architecture}
+\begin{itemize}
+    \item Input Embedding
+    \item Layer Norm \textrightarrow{} Self-Attention \textrightarrow{} Residual
+        \begin{itemize}
+            \item Grouped-Query Attention
+            \item Rotary Embeddings
+        \end{itemize}
+    \item Layer Norm \textrightarrow{} FNN \textrightarrow{} Residual
+\end{itemize}
+
+\subsection{Grouped-query attention}
+\begin{itemize}
+    \item Use same $W_K$ and $W_V$ across heads, and each head has its own $W_Q.$
+    \item Better: divide heads into groups. Heads in the same group share $W_K$ and $W_V$
+\end{itemize}
+
+\subsection{Rotary positional embeddings (RoPE)}
+\begin{itemize}
+	\item Limitations of absolute positional embedding:
+	\begin{itemize}
+		\item Limited sequence length
+		\item Independence of positional embedding, e.g./ difference between position 1 and 2 is the same as the difference between position 1 and 500
+	\end{itemize}
+    \item T5 used \textit{relative positional embeddings}
+    \begin{itemize}
+        \item Bias for positional offsets: use a bias to represent each possible positional offset
+        \item Relative attention becomes:
+        \begin{equation*}
+            \att(Q,K,V)_i = \sum_{j=1}^{n}\softmax(e_{ij}) \times (x_jW_V + a_{ij}^V),
+        \end{equation*}
+        where
+        \begin{equation*}
+            e_{ij} = \frac{QK^T + x_iW_Q(a_{ij}^K)^T}{\sqrt{d_k}}.
+        \end{equation*}
+        \item Here, $a_{ij} \in \R^{1\times d_a}$ is a vector of relative positional weights, i.e.,
+        \begin{gather*}
+            a_{ij} = w_{\operatorname{clip}(j-i,k)}\\
+            \operatorname{clip}(x,k) = \max(-k, \min(k,x)).
+        \end{gather*}
+        Calculate $w$ for both keys and values.
+        \item Clipping allows scalability (i.e., arbitrarily long sequences)
+        \item Limitations: slower; complicates key-value cache usage as each additional token changes the embedding for every other token.
+    \end{itemize}
+    \item For \textit{RoPe}, the intuition is to rotate each embedding by $m \theta,$ where $m$ is the position of the word in the sequence.
+    \item Benefits:
+        \begin{itemize}
+            \item Scalability: adding new words does not change the embedding of previous words
+            \item The dot product of the embeddings of two words does not depend on absolute position.
+        \end{itemize}
+    \item Mathematically, we first work in $\C^{d_k/2}.$ Let $M_j$ be the rotation matrix by $m \theta_j.$ Then the output of RoPE for the $m$-th word is just
+    \begin{equation*}
+        Q_m\Theta_m = Q_m \times
+        \begin{pmatrix}
+        M_1 & & & \\
+        & M_2 & & \\
+        & & \ddots & \\
+        & & & M_{d_k/2}
+        \end{pmatrix},
+    \end{equation*}
+    where $Q_m$ is the $m$-th row of $Q$ (i.e., query vector for $m$-th word).
+    \item Do the same for key vector.
+\end{itemize}
+
+\section{Other Techniques}
+\subsection{Sparse attention}
+Instead of global autoregressive self-attention, use local autoregressive self-attention in some layers.
+
+\subsection{Mixture of experts (MOE)}
+\begin{itemize}
+    \item Instead of a single monolithic feedforward layer in the transformer block, use a set of expert networks, and route the input to only a few of them.
+    \item A router (a smaller FNN) calculates which experts to turn on.
+    \item Could do model merging by doing a weighted average of experts using weights from the router.
+\end{itemize}
