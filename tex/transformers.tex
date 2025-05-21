@@ -110,7 +110,7 @@ Decoder Layer:
 		\item Limited sequence length
 		\item Independence of positional embedding, e.g./ difference between position 1 and 2 is the same as the difference between position 1 and 500
 	\end{itemize}
-    \item T5 used \textit{relative positional embeddings}
+    \item Alternative: \textit{relative positional embeddings} \cite{relposrep}
     \begin{itemize}
         \item Bias for positional offsets: use a bias to represent each possible positional offset
         \item Relative attention becomes:
@@ -130,7 +130,7 @@ Decoder Layer:
         \item Clipping allows scalability (i.e., arbitrarily long sequences)
         \item Limitations: slower; complicates key-value cache usage as each additional token changes the embedding for every other token.
     \end{itemize}
-    \item For \textit{RoPe}, the intuition is to rotate each embedding by $m \theta,$ where $m$ is the position of the word in the sequence.
+    \item For \textit{RoPE} \cite{rotpos}, the intuition is to rotate each embedding by $m \theta,$ where $m$ is the position of the word in the sequence.
     \item Benefits:
         \begin{itemize}
             \item Scalability: adding new words does not change the embedding of previous words
@@ -159,4 +159,33 @@ Instead of global autoregressive self-attention, use local autoregressive self-a
     \item Instead of a single monolithic feedforward layer in the transformer block, use a set of expert networks, and route the input to only a few of them.
     \item A router (a smaller FNN) calculates which experts to turn on.
     \item Could do model merging by doing a weighted average of experts using weights from the router.
+\end{itemize}
+
+\section{Fine-Tuning Techniques}
+
+Full fine-tuning, of course, has the best performance but is computationally expensive. Need parameter-efficient fine-tuning.
+
+\subsection{Adapter-based methods}
+\begin{itemize}
+    \item Adapters: small, trainable models inserted into pre-trained transformers.
+    \item Freeze original model weights.
+\end{itemize}
+
+\subsubsection{Low-Rank Adaptation (LoRA) \cite{lora}}
+\begin{itemize}
+    \item Intuition: only train low rank perturbations of the (selected) weight matrices.
+    \item Let $W_0 \in \R^{d \times k}$ be a pre-trained weight matrix.
+    \item Update: $W_0 + \Delta W = W_0 + BA,$ where $B \in \R^{d \times r}, A \in \R^{r \times d}, r \ll \min(d,k).$
+    \item Advantages:
+    \begin{itemize}
+        \item Roughly converges to full fine-tuning as $r$ increases.
+        \item No additional inference latency: when needing to switch to another downstream task, can recover $W_0$ by subtracting $BA,$ and then we can add a new $B'A'.$
+    \end{itemize}
+    \item Notes \cite{lora_notes}:
+    \begin{itemize}
+        \item Optimal placement highly dependent on the dataset and model architecture.
+        \item For transformers, applying LoRA exclusively to attention layers provides the most stability and mitigates the risk of divergence.
+        \item For MoE, applying LoRA to each expert individually boosts performance, but significantly increases memory usage. Applying to router gives limited success.
+        \item Could optimize memory by using same $B$ across different $A.$
+    \end{itemize}
 \end{itemize}
