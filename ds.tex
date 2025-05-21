@@ -26,8 +26,16 @@
 \DeclareMathOperator{\att}{Attention}
 \DeclareMathOperator{\head}{head}
 \DeclareMathOperator{\layernorm}{LayerNorm}
+\DeclareMathOperator{\round}{round}
+\DeclareMathOperator{\absmax}{absmax}
+\DeclareMathOperator{\doubleDequant}{doubleDequant}
+\DeclareMathOperator{\dequant}{dequant}
 
 \newcommand{\tobs}{t_{\text{obs}}}
+\newcommand{\nf}{\mathrm{NF}}
+\newcommand{\fp}{\mathrm{FP}}
+\newcommand{\bfl}{\mathrm{BF}}
+\newcommand{\kbit}{k\text{-bit}}
 
 \begin{document}
 
@@ -35,6 +43,7 @@
 \include{tex/linreg}
 \include{tex/nlp}
 \include{tex/transformers}
+\include{tex/finetuning}
 \include{tex/fourier}
 
 \nocite{*}

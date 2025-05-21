@@ -1,0 +1,80 @@
+\chapter{Fine-Tuning Techniques}
+
+Full fine-tuning, of course, has the best performance but is computationally expensive. Need parameter-efficient fine-tuning (PEFT).
+
+\begin{itemize}
+    \item Adapter-based methods
+    \begin{itemize}
+        \item Adapters: small, trainable models inserted into pre-trained transformers.
+        \item Freeze original model weights.
+    \end{itemize}
+    \item Instruction tuning
+\end{itemize}
+
+\section{Low-Rank Adaptation (LoRA)}
+Introduced in \cite{lora}.
+\begin{itemize}
+    \item Intuition: only train low rank perturbations of the (selected) weight matrices.
+    \item Let $W_0 \in \R^{d \times k}$ be a pre-trained weight matrix.
+    \item Update: $W_0 + \Delta W = W_0 + BA,$ where $B \in \R^{d \times r}, A \in \R^{r \times d}, r \ll \min(d,k).$
+    \item Advantages:
+    \begin{itemize}
+        \item Roughly converges to full fine-tuning as $r$ increases.
+        \item No additional inference latency: when needing to switch to another downstream task, can recover $W_0$ by subtracting $BA,$ and then we can add a new $B'A'.$
+    \end{itemize}
+    \item Notes \cite{lora_notes}:
+    \begin{itemize}
+        \item Optimal placement highly dependent on the dataset and model architecture.
+        \item For transformers, applying LoRA exclusively to attention layers provides the most stability and mitigates the risk of divergence.
+        \item For MoE, applying LoRA to each expert individually boosts performance, but significantly increases memory usage. Applying to router gives limited success.
+        \item Could optimize memory by using same $B$ across different $A.$
+    \end{itemize}
+\end{itemize}
+
+\section{QLoRA}
+Quantized LoRA, introduced in \cite{qlora}.
+
+\subsection{4-bit NormalFloat Quantization}
+
+\begin{itemize}
+    \item Better quantization data type for normally distributed data.
+    \item In general, for $k$-bit NormalFloat, equally divide the normal distribution into $2^k$ quantiles.
+    \item Note: to ensure $0$ has an exact representation, actually divide the negative part into $2^{k-1}$ quantiles and the positive part into $2^{k-1} + 1$ quantiles, then remove one of the two overlapping zeros.
+    \item Then
+    \begin{equation*}
+        X^{\nf 4} = \round\left(\frac{1}{\absmax(X^{\fp 32})} X^{\fp 32}\right) = \round(c^{\fp 32}X^{\fp 32}),
+    \end{equation*}
+    where $c^{\fp 32}$ is the \textit{quantization constant}.
+\end{itemize}
+
+\subsection{Block-wise Quantization}
+\begin{itemize}
+    \item One problem is quantization is that outliers severely impacts the scaling, and the full range of the lower precision data type may not be effectively used.
+    \item Solution: Chunk the input tensor into blocks that are independently quantized, each with its own quantization constant.
+\end{itemize}
+
+\subsection{Double Quantization}
+\begin{itemize}
+    \item Helps reduce the memory footprint of quantization constants.
+    \item Block-wise $k$-bit quantization for the quantization constants $c^{\fp 32}.$
+    \item Gives $c^{\kbit}_2,$ with second level of quantization constants $c_1^{\fp 32}.$
+\end{itemize}
+
+\subsection{Implementation}
+\begin{itemize}
+    \item Recall: LoRA has
+    \begin{equation*}
+        Y = XW + XL_1L_2
+    \end{equation*}
+    for low rank matrices $L_i.$
+    \item For QLoRA, do
+    \begin{equation*}
+        Y^{\bfl 16} = X^{\bfl 16}\doubleDequant(c_1^{\fp 32}, c_2^{\kbit}, W^{\nf 4}) + X^{\bfl 16}L_1^{\bfl 16}L_2^{\bfl 16},
+    \end{equation*}
+    where
+    \begin{equation*}
+        \doubleDequant(c_1^{\fp 32}, c_2^{\kbit}, W^{\nf 4}) = \dequant(\dequant(c_1^{\fp 32}, c_2^{\kbit}), W^{\nf 4}) = W^{\bfl 16}
+    \end{equation*}
+    \item Original paper \cite{qlora} uses $\fp 8$ for $c_2,$ block size of 64 for $W,$ and block size of 256 for $c_2.$
+    \item Computations done in $\bfl 16$ and storage of $W$ in $\nf 4.$
+\end{itemize}
