@@ -78,3 +78,19 @@ Quantized LoRA, introduced in \cite{qlora}.
     \item Original paper \cite{qlora} uses $\fp 8$ for $c_2,$ block size of 64 for $W,$ and block size of 256 for $c_2.$
     \item Computations done in $\bfl 16$ and storage of $W$ in $\nf 4.$
 \end{itemize}
+
+\subsection{\texorpdfstring{\iat}{IA3}}
+\begin{itemize}
+    \item Introduced in \cite{ia3}, Infused Adapter by Inhibiting and Amplifying Inner Activations is intended to improve over LoRA.
+    \item Notation: if $l \in \R^d$ and $A \in \R^{m \times d},$ then $(l \odot A)_{ij} = l_jA_{ij},$ i.e., element-wise multiplication of $l$ and rows of $A.$
+    \item Learned vectors $l_v,l_k,l_f.$
+    \item Attention layer:
+    \begin{equation*}
+        \softmax\left(\frac{Q(l_k \odot K^T)}{\sqrt{d_k}}\right) \times (l_v \odot V)
+    \end{equation*}
+    \item Feedforward layer:
+    \begin{equation*}
+        (l_f \odot \gamma(W_1x))W_2,
+    \end{equation*}
+    where $\gamma$ is the FFN nonlinearity.
+\end{itemize}
