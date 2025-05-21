@@ -17,5 +17,10 @@ For convenience, I have copied the Table of Contents below:
     2. LSTM
     3. Seq2seq
     4. Seq2seq with Attention
-    5. Transformers
-4. Fourier Transform
+4. Transformers
+    1. Ingredients
+    2. Original Architecture
+    3. Modern Architecture
+    4. Other Techniques
+    5. Fine-Tuning Techniques
+5. Fourier Transform
