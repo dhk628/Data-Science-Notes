@@ -22,5 +22,7 @@ For convenience, I have copied the Table of Contents below:
     2. Original Architecture
     3. Modern Architecture
     4. Other Techniques
-    5. Fine-Tuning Techniques
-5. Fourier Transform
+5. Fine-Tuning Techniques
+    1. Low-Rank Adaptation (LoRA)
+    2. QLoRA
+6. Fourier Transform
