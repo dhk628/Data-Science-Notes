@@ -1,6 +1,6 @@
 # Data Science Notes
 
-This is a repository containing my data science notes, where I summarize various topics in data science, machine learning, and related fields. The notes are meant to be a simplified exposition that I can use to review key concepts, and none of the content is originally mine. I have listed the references that I used at the end of the PDF file.
+This is a repository containing my data science notes, where I summarize various topics in data science, machine learning, and related fields. The notes are meant to be a simplified exposition that I can use to review key concepts, and none of the content is originally mine. I have listed the references that I used at the end of the [PDF file](ds.pdf).
 
 # Contents
 
