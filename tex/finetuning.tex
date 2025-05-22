@@ -83,14 +83,19 @@ Quantized LoRA, introduced in \cite{qlora}.
 \begin{itemize}
     \item Introduced in \cite{ia3}, Infused Adapter by Inhibiting and Amplifying Inner Activations is intended to improve over LoRA.
     \item Notation: if $l \in \R^d$ and $A \in \R^{m \times d},$ then $(l \odot A)_{ij} = l_jA_{ij},$ i.e., element-wise multiplication of $l$ and rows of $A.$
-    \item Learned vectors $l_v,l_k,l_f.$
+    \item Learned vectors $l_\v,l_\k,l_\ff.$
     \item Attention layer:
     \begin{equation*}
-        \softmax\left(\frac{Q(l_k \odot K^T)}{\sqrt{d_k}}\right) \times (l_v \odot V)
+        \softmax\left(\frac{Q(l_\k \odot K^T)}{\sqrt{d_k}}\right) \times (l_\v \odot V)
     \end{equation*}
     \item Feedforward layer:
     \begin{equation*}
-        (l_f \odot \gamma(W_1x))W_2,
+        (l_\ff \odot \gamma(W_1x))W_2,
     \end{equation*}
     where $\gamma$ is the FFN nonlinearity.
+    \item Advantages:
+    \begin{itemize}
+        \item Enables mixed tasks.
+        \item For single-task models, no additional computational cost compared to original, because one can simply replace $W$ with $l \odot W.$
+    \end{itemize}
 \end{itemize}
