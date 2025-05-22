@@ -20,7 +20,7 @@ Decoders: Self-Attention \textrightarrow{} Encoder-Decoder Attention \textrighta
 
 \section{Ingredients}
 \subsection{Self-attention}
-Process:
+\subsubsection{Process}
 \begin{enumerate}
 \item Create three vectors from each of the encoder’s input vectors: Query, Key, and Value vectors.
 
@@ -44,6 +44,19 @@ are in $R^{n \times d_k}$
 For each attention head, we have
 \[ \att(Q,K,V) = \softmax\left(\frac{QK^T}{\sqrt{d_k}}\right) \times V \in \R^{n \times d_k}, \]
 i.e., aggregate values weighted by attention.
+
+\subsubsection{Complexity}
+\begin{itemize}
+    \item Calculating $Q,K,V$ are all $O(ndd_k).$
+    \item Calculating $QK^T$ is $O(n^2d_k).$
+    \item Doing softmax is $O(n^2).$
+    \item Multiplying result with $V$ is $O(n^2d_k).$
+\end{itemize}
+Overall, the time complexity of the self-attention mechanism is $O(ndd_k + n^2d_k).$ If $n \gg d,d_k,$ this reduces to just $O(n^2).$
+
+\begin{remark*}
+    In \cite{keles2022computationalcomplexityselfattention}, the authors show that the time complexity of self-attention is necessarily quadratic in the input length, unless the Strong Exponential Time Hypothesis (SETH) is false.
+\end{remark*}
 
 \subsection{Multi-headed attention}
 Do $h$ parallel attention heads, with different weight matrices for each head.
